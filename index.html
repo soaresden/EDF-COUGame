@@ -114,6 +114,15 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:poi
 .dgBar i{display:block;width:18px;height:8px;border-radius:3px}
 .dgChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
 .dgChips span{font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.12);white-space:nowrap}
+.shipLine{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 7px;margin:8px 0 0;font-size:15px;line-height:1.25}
+.shipLine b{font-family:var(--display);font-weight:800;letter-spacing:.01em}
+.shipLine small{font-size:12px;opacity:.8;font-weight:600}
+#mpShip{justify-content:flex-start}
+#stampN{font-style:normal;margin-top:6px}
+#stampN b{display:inline;font-size:20px;line-height:1.1;color:var(--paper);text-shadow:0 2px 0 var(--navy),0 4px 12px rgba(0,0,0,.5)}
+.flag{display:inline-block;flex:none;width:22px;height:15px;border-radius:2px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.4),0 1px 3px rgba(0,0,0,.35)}
+.flag svg{display:block;width:100%;height:100%}
+#hShip{display:block;font-size:10px;font-weight:600;opacity:.85;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #stampD{display:block;margin:8px auto 0;width:max-content;max-width:100%;padding:3px 12px;border-radius:999px;background:rgba(0,26,112,.85);color:var(--yellow);font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.06em;text-transform:uppercase;text-shadow:none}
 
 /* écran d'accueil : logo du parc animé */
@@ -203,7 +212,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:poi
   </header>
 
   <div id="hud" aria-live="polite">
-    <div class="cell"><small data-i18n="hud.wtg">Éolienne</small><b id="hWtg">G01</b></div>
+    <div class="cell"><small data-i18n="hud.wtg">Éolienne</small><b id="hWtg">G01</b><span id="hShip"></span></div>
     <div class="cell"><small data-i18n="hud.piece">Pièce</small><b id="hPiece">1/6</b></div>
     <div class="cell"><small data-i18n="hud.alt">Altitude</small><b id="hAlt">10,0 m</b></div>
     <div class="cell"><small data-i18n="hud.score">Score</small><b id="hScore">0</b></div>
@@ -212,7 +221,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:poi
 
   <div id="stage">
     <canvas id="game" aria-label="Zone de jeu : touchez pour lâcher la pièce"></canvas>
-    <div id="stamp" hidden><b id="stampT">G01</b><span id="stampS">Aube · rafales 2 Bft · 6 pièces</span><br><em id="stampE" hidden>Orage</em><strong id="stampD"></strong></div>
+    <div id="stamp" hidden><b id="stampT">G01</b><i id="stampN" class="shipLine"></i><span id="stampS">Aube · rafales 2 Bft · 6 pièces</span><br><em id="stampE" hidden>Orage</em><strong id="stampD"></strong></div>
 
     <div id="menu" class="overlay">
       <div class="card">
@@ -246,6 +255,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:poi
           <button id="mpGo" class="btn" type="button">Appareiller</button>
           <button id="mpMenu" class="btn alt" type="button">Menu</button>
         </div>
+        <p id="mpShip" class="shipLine"></p>
         <div id="mpDanger" class="mpDanger"></div>
         <p id="mpHint">Touchez une éolienne de la carte pour la choisir.</p>
       </div>
@@ -256,6 +266,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:poi
         <button id="rToggle" class="miniBtn" type="button">Masquer</button>
         <p class="eyebrow" id="rEyebrow">G01 · en service</p>
         <h2 id="rTitle">Éolienne raccordée !</h2>
+        <p id="rShip" class="shipLine"></p>
         <div class="stars hideMini" id="rStars"></div>
         <p id="rText" class="hideMini"></p>
         <div class="stats hideMini" id="rStats"></div>
@@ -318,7 +329,52 @@ function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save));
 const doneCount = () => Object.keys(save.lv).length;
 const totalScore = () => Object.values(save.lv).reduce((a, l) => a + (l.sc || 0), 0);
 function nextLevel() { for (let n = 1; n <= 64; n++) if (!save.lv[n]) return n; return 64; }
-const isUnlocked = n => n <= nextLevel() || !!save.lv[n];
+const isUnlocked = () => true;   // tout le parc est ouvert : on choisit son éolienne librement
+
+/* ---------- les 64 navires ----------
+   Chaque éolienne du parc porte le nom d'un navire du Débarquement et de la bataille de Normandie
+   (liste du groupe de travail historique, carte « 64 navires mis à l'honneur » du parc ; F07 = Jeremiah O'Brien
+   d'après l'annonce du parc de 2024). Rangées : G transports de matériel et de carburant, F transports de troupes,
+   E frégates, monitors, dragueurs, corvette, D cuirassés, C croiseurs, B destroyers, A navires emblématiques.
+   [nom, pays, type, note facultative] */
+const SHIPS = [
+  ['HMHS San Julian', 'gb', 'hospital'], ['Iddlesleigh', 'gb', 'supply'], ['Twickenham Ferry', 'gb', 'trainferry'],
+  ['LST 325', 'us', 'lst'], ['LST 314', 'us', 'lst'], ['SS Empire Traveller', 'gb', 'tanker'],
+  ['Derry Cunihy', 'gb', 'troops'], ['LCI 85', 'us', 'troops'], ['SS Leopoldville', 'be', 'troops'], ['HMCS Prince David', 'ca', 'troops'],
+  ['HMS Bulolo', 'gb', 'troops'], ['HMS Hilary', 'gb', 'troops'], ["SS Jeremiah O'Brien", 'us', 'liberty'], ['Empire Broadsword', 'gb', 'troops'],
+  ['USS Bayfield', 'us', 'troops'], ['SS Susan B. Anthony', 'us', 'troops'],
+  ['La Surprise', 'fr', 'frigate'], ['HMS Roberts', 'gb', 'monitor'], ['HMCS Huron', 'ca', 'destroyer'], ['HMS Pylades', 'gb', 'minesweeper'],
+  ['HMS Magic & HMS Cato', 'gb', 'minesweepers'], ['HMS Mourne', 'gb', 'frigate'], ['HMS Lawford', 'gb', 'frigate'],
+  ['HNMS Flores', 'nl', 'gunboat'], ['HMCS Regina', 'ca', 'corvette'],
+  ['HMS Ramillies', 'gb', 'battleship'], ['HMS Warspite', 'gb', 'battleship'], ['HMS Rodney', 'gb', 'battleship'], ['HMS Centurion', 'gb', 'battleship'],
+  ['HMS Nelson', 'gb', 'battleship'], ['USS Nevada', 'us', 'battleship'], ['USS Arkansas', 'us', 'battleship'], ['USS Texas', 'us', 'battleship'],
+  ['Georges Leygues', 'fr', 'cruiser'], ['Montcalm', 'fr', 'cruiser'], ['HNMS Sumatra', 'nl', 'cruiser'], ['HMS Black Prince', 'gb', 'cruiser'],
+  ['HMS Mauritius', 'gb', 'cruiser'], ['HMS Arethusa', 'gb', 'cruiser'], ['HMS Ajax', 'gb', 'cruiser'], ['HMS Orion', 'gb', 'cruiser'],
+  ['USS Tuscaloosa', 'us', 'cruiser'], ['USS Augusta', 'us', 'cruiser'], ['USS Quincy', 'us', 'cruiser'],
+  ['ORP Krakowiak', 'pl', 'destroyer'], ['USS Corry', 'us', 'destroyer'], ['USS Rich', 'us', 'destroyer'], ['HMS Glasgow', 'gb', 'cruiser'],
+  ['HMS Kelvin', 'gb', 'destroyer'], ['HMCS Algonquin', 'ca', 'destroyer'], ['HMCS Athabaskan', 'ca', 'destroyer'], ['HNoMS Glaisdale', 'no', 'destroyer'],
+  ['USS Glennon', 'us', 'destroyer'], ['HMS Fury', 'gb', 'destroyer'],
+  ['USS Satterlee', 'us', 'destroyer', 'hoc'], ['Courbet', 'fr', 'battleship'], ['HMS Quorn', 'gb', 'destroyer'], ['La Combattante', 'fr', 'destroyer', 'gaulle'],
+  ['LCPV PA 33-4', 'us', 'landing'], ['X23 & X24', 'gb', 'midget', 'mark'], ['ORP Dragon', 'pl', 'cruiser'], ['HMCS Sioux', 'ca', 'destroyer'],
+  ['HNoMS Svenner', 'no', 'destroyer', 'sunk'], ['LCI(S) 523', 'gb', 'landing', 'kieffer']
+];
+const ship = n => SHIPS[n - 1];
+const FLAG = {
+  gb: '<svg viewBox="0 0 60 40" preserveAspectRatio="none"><rect width="60" height="40" fill="#012169"/><path d="M0,0 60,40M60,0 0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 60,40M60,0 0,40" stroke="#c8102e" stroke-width="3"/><path d="M30,0v40M0,20h60" stroke="#fff" stroke-width="12"/><path d="M30,0v40M0,20h60" stroke="#c8102e" stroke-width="7"/></svg>',
+  us: '<svg viewBox="0 0 19 13" preserveAspectRatio="none"><rect width="19" height="13" fill="#fff"/><path d="M0,.5h19M0,2.5h19M0,4.5h19M0,6.5h19M0,8.5h19M0,10.5h19M0,12.5h19" stroke="#b22234"/><rect width="7.6" height="7" fill="#3c3b6e"/></svg>',
+  fr: '<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" fill="#002395"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#ed2939"/><path d="M1.5,.42v1.2M1.33,.72h.34M1.26,.92h.48" stroke="#ed2939" stroke-width=".11"/></svg>',
+  ca: '<svg viewBox="0 0 4 2" preserveAspectRatio="none"><rect width="4" height="2" fill="#d52b1e"/><rect x="1" width="2" height="2" fill="#fff"/><path d="M2,.3l.13,.28.2-.08-.06,.42.22-.18.06,.16.18-.04-.1,.3.08,.06-.38,.28.04,.16h-.37v.3h-.06v-.3h-.37l.04-.16-.38-.28.08-.06-.1-.3.18,.04.06-.16.22,.18-.06-.42.2,.08z" fill="#d52b1e"/></svg>',
+  be: '<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" fill="#000"/><rect x="1" width="1" height="2" fill="#fdda24"/><rect x="2" width="1" height="2" fill="#ef3340"/></svg>',
+  nl: '<svg viewBox="0 0 3 3" preserveAspectRatio="none"><rect width="3" height="1" fill="#ae1c28"/><rect y="1" width="3" height="1" fill="#fff"/><rect y="2" width="3" height="1" fill="#21468b"/></svg>',
+  pl: '<svg viewBox="0 0 2 2" preserveAspectRatio="none"><rect width="2" height="1" fill="#fff"/><rect y="1" width="2" height="1" fill="#dc143c"/></svg>',
+  no: '<svg viewBox="0 0 22 16" preserveAspectRatio="none"><rect width="22" height="16" fill="#ba0c2f"/><path d="M8,0v16M0,8h22" stroke="#fff" stroke-width="4"/><path d="M8,0v16M0,8h22" stroke="#00205b" stroke-width="2"/></svg>'
+};
+const flagHtml = c => `<i class="flag" title="${tr('nat')[c]}" role="img" aria-label="${tr('nat')[c]}">${FLAG[c]}</i>`;
+function shipHtml(n, withType = true) {
+  const [name, c, ty, note] = ship(n);
+  const sub = withType ? ' <small>' + tr('shipT')[ty] + (note ? ' · ' + tr('shipN')[note] : '') + '</small>' : '';
+  return `${flagHtml(c)}<b>${name}</b>${sub}`;
+}
 
 /* ---------- difficulté ----------
    Plus on avance vers le large, plus les éléments se déchaînent : chaque éolienne tire
@@ -474,7 +530,13 @@ function newGame(n, demo) {
   g.leanMax = 36 * g.fw;
   g.ev = {}; c.events.forEach(e => { g.ev[e] = true; });
   g.storm = g.ev.orage ? { next: rnd(1.2, 2.4), flash: 0, bolt: null, boltT: 0, flicker: false } : null;
-  g.fog = g.ev.brouillard ? [0, 1, 2].map(i => ({ x: rnd(0, W), off: -8 + i * 13, yM: MONO_TOP + 10, w: rnd(1.1, 1.6), v: rnd(14, 26) * (i % 2 ? -1 : 1), a: rnd(.62, .85) })) : null;
+  // brouillard : des bancs posés sur la mer, trois qui suivent le haut de la tour,
+  // et un nouveau banc laissé en place tous les 18 m : la brume monte avec le chantier
+  g.fog = g.ev.brouillard ? [
+    ...[0, 1, 2].map(i => fogBank(-3 + i * 7, i, rnd(1.5, 2.1), rnd(.72, .9), true)),
+    ...[0, 1, 2].map(i => fogBank(MONO_TOP + 10, i, rnd(1.1, 1.6), rnd(.62, .85), false, -8 + i * 13))
+  ] : null;
+  g.fogNext = 28;
   g.gust = g.ev.rafale ? { t: rnd(4, 7), warn: 0, on: 0, dir: 1 } : null;
   viewX = 0; cx = cxBase;
   fx.rings.length = fx.parts.length = fx.texts.length = fx.confetti.length = fx.splashes.length = 0;
@@ -483,6 +545,7 @@ function newGame(n, demo) {
   if (AC && windGain) windGain.gain.value = demo ? 0 : 0.02 + c.wind * 0.07;
 }
 
+function fogBank(yM, i, w, a, fix, off = 0) { return { x: rnd(0, W), off, yM, w, v: rnd(14, 26) * (i % 2 ? -1 : 1), a, fix }; }
 const topM = () => g.placed.length ? g.placed[g.placed.length - 1].bottomM + g.placed[g.placed.length - 1].hM : MONO_TOP;
 const topRest = () => g.placed.length ? g.placed[g.placed.length - 1].x : 0;
 const topW = () => g.placed.length ? g.placed[g.placed.length - 1].w : g.monoW;
@@ -733,8 +796,9 @@ function updateEvents(dt) {
     st.next -= dt; st.flash = Math.max(0, st.flash - dt * 2.2); st.boltT = Math.max(0, st.boltT - dt);
     if (st.next <= 0) { st.next = rnd(3.2, 7); st.flash = 1; st.boltT = 0.35; st.bolt = makeBolt(); st.flicker = Math.random() < 0.6; SFX.thunder(rnd(0.25, 1.1)); buzz(25); }
   }
+  if (g.fog && topM() > g.fogNext + 8) { g.fog.unshift(fogBank(g.fogNext, g.fog.length, rnd(1.2, 1.8), rnd(.5, .7), true)); g.fogNext += 18; }
   if (g.fog) g.fog.forEach(f => {
-    f.yM = lerp(f.yM, topM() + f.off, dt * 0.8);
+    if (!f.fix) f.yM = lerp(f.yM, topM() + f.off, dt * 0.8);
     f.x += (f.v + g.wind * 20) * dt; const span = W * f.w * 0.7;
     if (f.x > W + span) f.x = -span; if (f.x < -span) f.x = W + span;
   });
@@ -1386,6 +1450,7 @@ function drawFog() {
   const col = isNight() ? '150,165,190' : '238,243,247';
   g.fog.forEach(f => {
     const y = waterY + cam - f.yM * PXM * zoom, rw = W * f.w * 0.32, rh = 26 + f.w * 12;
+    if (y < -rh * 2 || y > H + rh * 2) return;
     for (let k = -2; k <= 2; k++) {
       const x = f.x + k * rw * 0.7, yy = y + Math.sin(T * 0.7 + k + f.off) * 6;
       ctx.save(); ctx.translate(x, yy); ctx.scale(1, rh / rw);
@@ -1454,6 +1519,11 @@ const I18N = {
     spares: 'RECHANGES', wind: 'VENT', vert: 'VERTICALITÉ',
     amb: ['Aube', 'Matin', 'Midi', 'Après-midi', 'Coucher de soleil', 'Nuit'],
     ev: { orage: 'Orage', brouillard: 'Brouillard', neige: 'Neige', rafale: 'Rafales', houle: 'Houle', goeland: 'Goélands', nuit: 'Nuit', pluie: 'Pluie' },
+    nat: { gb: 'Royaume-Uni', us: 'États-Unis', fr: 'France libre', ca: 'Canada', be: 'Belgique', nl: 'Pays-Bas', pl: 'Pologne', no: 'Norvège' },
+    shipT: { hospital: 'Navire-hôpital', supply: 'Transport de matériel', trainferry: 'Ferry, matériel ferroviaire', lst: 'Transport de matériel (LST)', tanker: 'Pétrolier',
+      troops: 'Transport de troupes', liberty: 'Liberty ship', frigate: 'Frégate', monitor: 'Monitor', destroyer: 'Destroyer', minesweeper: 'Dragueur de mines',
+      minesweepers: 'Dragueurs de mines', gunboat: 'Canonnière', corvette: 'Corvette', battleship: 'Cuirassé', cruiser: 'Croiseur', landing: 'Barge de débarquement', midget: 'Sous-marins de poche' },
+    shipN: { hoc: 'en appui des Rangers à la pointe du Hoc', gaulle: 'ramène de Gaulle en France le 14 juin 1944', mark: 'balisage des plages', sunk: 'coulé le 6 juin 1944', kieffer: 'du commando Kieffer' },
     tiers: ['Calme', 'Agité', 'Gros temps', 'Tempête', 'Déchaînement', 'Les éléments se déchaînent !'],
     rain: 'pluie',
     stampSub: (tp, amb, bft, n) => `TP ${tp} · ${amb} · rafales ${bft} Bft · ${n} pièces`,
@@ -1505,6 +1575,11 @@ const I18N = {
     spares: 'SPARES', wind: 'WIND', vert: 'VERTICALITY',
     amb: ['Dawn', 'Morning', 'Noon', 'Afternoon', 'Sunset', 'Night'],
     ev: { orage: 'Thunderstorm', brouillard: 'Fog', neige: 'Snow', rafale: 'Gusts', houle: 'Swell', goeland: 'Gulls', nuit: 'Night', pluie: 'Rain' },
+    nat: { gb: 'United Kingdom', us: 'United States', fr: 'Free France', ca: 'Canada', be: 'Belgium', nl: 'Netherlands', pl: 'Poland', no: 'Norway' },
+    shipT: { hospital: 'Hospital ship', supply: 'Supply ship', trainferry: 'Train ferry', lst: 'Tank landing ship (LST)', tanker: 'Tanker',
+      troops: 'Troop transport', liberty: 'Liberty ship', frigate: 'Frigate', monitor: 'Monitor', destroyer: 'Destroyer', minesweeper: 'Minesweeper',
+      minesweepers: 'Minesweepers', gunboat: 'Gunboat', corvette: 'Corvette', battleship: 'Battleship', cruiser: 'Cruiser', landing: 'Landing craft', midget: 'Midget submarines' },
+    shipN: { hoc: 'supporting the Rangers at Pointe du Hoc', gaulle: 'brought de Gaulle back to France on 14 June 1944', mark: 'marked the beaches', sunk: 'sunk on 6 June 1944', kieffer: "the Kieffer commando's craft" },
     tiers: ['Calm', 'Choppy', 'Rough', 'Storm', 'Fury', 'The elements are unleashed!'],
     rain: 'rain',
     stampSub: (tp, amb, bft, n) => `TP ${tp} · ${amb} · gusts ${bft} Bft · ${n} pieces`,
@@ -1546,6 +1621,7 @@ let lastResult = null;
 function updateHud() {
   if (!g || g.demo) return;
   $('hWtg').textContent = wtg(g.n);
+  $('hShip').textContent = ship(g.n)[0];
   $('hPiece').textContent = Math.min(g.idx + 1, g.plan.length) + '/' + g.plan.length;
   $('hAlt').textContent = fmt1(g.phase === 'won' ? TIP : topM()) + ' m';
   $('hScore').textContent = fmtInt(g.score);
@@ -1554,6 +1630,7 @@ function updateHud() {
 function showStamp() {
   const c = g.c, bft = 1 + Math.round(c.wind * 6), lv = LV[g.n - 1];
   $('stampT').textContent = wtg(g.n);
+  $('stampN').innerHTML = shipHtml(g.n, false);
   $('stampS').textContent = tr('stampSub', lv[1], tr('amb')[c.amb] + (c.rain || g.storm ? ' · ' + tr('rain') : ''), bft, g.plan.length);
   const em = $('stampE');
   const hz = hazardsOf(g.n);
@@ -1599,6 +1676,7 @@ function showResult(won) {
   resetCard();
   const statsHtml = items => items.map(([k, v]) => `<div class="stat"><small>${k}</small><b>${v}</b></div>`).join('');
   const facts = tr('facts');
+  $('rShip').innerHTML = shipHtml(n);
   $('rFact').textContent = facts[(n - 1) % facts.length];
   if (won) {
     if (W < 720) { resMini = true; rCard.classList.add('mini'); $('rToggle').textContent = tr('show'); }
@@ -1746,6 +1824,7 @@ function mapPanelUpdate() {
   go.textContent = busy ? tr('goBusy') : !un ? tr('locked') : st ? tr('goReplay', t[0]) : tr('goNew', t[0]);
   $('mpMenu').textContent = tr('menu');
   $('mpHint').textContent = !un ? tr('hintLocked', wtg(nextLevel())) : b && b.st === 'leave' ? tr('hintLeave') : tr('hintPick');
+  $('mpShip').innerHTML = shipHtml(n);
   $('mpDanger').innerHTML = dangerHtml(n);
 }
 

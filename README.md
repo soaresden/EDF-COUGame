@@ -20,7 +20,7 @@ Vous partez de la base de **Ouistreham** et vous hissez les éoliennes du parc, 
 - Surveillez la **verticalité** : une tour trop penchée bascule.
 - **Trois pièces à la mer** et le chantier de cette éolienne s'arrête.
 
-Chaque éolienne raccordée s'allume sur la carte du parc, avec un « Le saviez-vous ? » sur le vrai chantier.
+Toutes les éoliennes sont ouvertes dès le départ : choisissez sur la carte celle que vous voulez construire. Chaque éolienne raccordée s'allume sur la carte du parc, avec un « Le saviez-vous ? » sur le vrai chantier.
 
 ## 🌩️ Des niveaux tous différents
 
@@ -39,7 +39,7 @@ Chaque éolienne a sa propre combinaison d'éléments, et leur nombre grimpe au 
 |---|---|
 | 🌙 Nuit | on y voit beaucoup moins, seules les lumières du chantier éclairent |
 | ⚡ Orage | nuit d'encre, éclairs qui aveuglent, pluie |
-| 🌁 Brouillard | des bancs de brume cachent le bas de la tour |
+| 🌁 Brouillard | la brume couvre la mer et monte avec la tour, jusqu'au point de pose |
 | ❄️ Neige | flocons poussés par le vent, pièces glissantes : le PARFAIT est plus serré |
 | 💨 Rafales | une rafale annoncée pousse la pièce d'un coup |
 | 🌊 Houle | la mer se creuse et la tour balance davantage |
@@ -48,6 +48,12 @@ Chaque éolienne a sa propre combinaison d'éléments, et leur nombre grimpe au 
 Le nombre de tronçons de mât, la vitesse du balancier et le vent augmentent aussi d'une éolienne à l'autre.
 
 <p align="center"><img src="docs/dechaine.jpg" width="820" alt="La dernière éolienne : nuit, orage, brouillard, neige, rafales, houle et goélands"></p>
+
+## ⚓ 64 navires du Débarquement
+
+Comme sur le vrai parc, chaque éolienne porte le nom d'un navire du Débarquement et de la bataille de Normandie, avec son drapeau : la carte, le bandeau de départ, le tableau de bord et l'écran de fin l'affichent. Les rangées suivent la logique du parc : transports de matériel et de carburant (G), transports de troupes (F), frégates, monitors et dragueurs de mines (E), cuirassés (D), croiseurs (C), destroyers (B), et en première ligne face à la côte les navires emblématiques (A), comme le *Satterlee* de la pointe du Hoc, *La Combattante* qui ramène de Gaulle ou la barge du commando Kieffer.
+
+La liste vient de la carte [« 64 navires mis à l'honneur »](https://www.parc-eolien-en-mer-du-calvados.fr/2023/04/12/lhistoire-au-coeur-du-parc-64-navires-mis-a-lhonneur/) du parc, établie par un groupe de travail d'historiens ; F07 porte le nom du Liberty ship *Jeremiah O'Brien*, comme annoncé par le parc en 2024.
 
 ## 🌊 Le vrai parc
 

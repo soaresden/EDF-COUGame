@@ -20,7 +20,7 @@ You leave the **Ouistreham** base and raise the farm's turbines, from **G01** to
 - Watch the **verticality**: a tower that leans too much tips over.
 - **Three pieces overboard** and work on that turbine stops.
 
-Each turbine brought online lights up on the farm map, with a "Did you know?" about the real construction site.
+Every turbine is open from the start: pick the one you want to build on the map. Each turbine brought online lights up on the farm map, with a "Did you know?" about the real construction site.
 
 ## 🌩️ Every level is different
 
@@ -39,7 +39,7 @@ Each turbine has its own mix of elements, and their number grows across the farm
 |---|---|
 | 🌙 Night | you see much less, only the site lights shine |
 | ⚡ Thunderstorm | pitch-black night, blinding lightning, rain |
-| 🌁 Fog | fog banks hide the bottom of the tower |
+| 🌁 Fog | mist covers the sea and climbs with the tower, right up to where the piece lands |
 | ❄️ Snow | snowflakes blown by the wind, slippery pieces: PERFECT gets tighter |
 | 💨 Gusts | an announced gust suddenly pushes the piece |
 | 🌊 Swell | the sea gets rough and the tower sways more |
@@ -48,6 +48,12 @@ Each turbine has its own mix of elements, and their number grows across the farm
 The number of tower sections, the swing speed and the wind also increase from one turbine to the next.
 
 <p align="center"><img src="docs/dechaine.jpg" width="820" alt="The last turbine: night, thunderstorm, fog, snow, gusts, swell and gulls"></p>
+
+## ⚓ 64 D-Day ships
+
+As on the real farm, each turbine bears the name of a ship from the Normandy landings and the Battle of Normandy, with its flag: the map, the start banner, the dashboard and the end screen all show it. The rows follow the farm's logic: supply and fuel transports (G), troop transports (F), frigates, monitors and minesweepers (E), battleships (D), cruisers (C), destroyers (B), and on the front line facing the coast the iconic ships (A), such as the *Satterlee* of Pointe du Hoc, *La Combattante* which brought de Gaulle back, or the Kieffer commando's landing craft.
+
+The list comes from the farm's ["64 ships honoured"](https://www.parc-eolien-en-mer-du-calvados.fr/2023/04/12/lhistoire-au-coeur-du-parc-64-navires-mis-a-lhonneur/) map, drawn up by a working group of historians; F07 bears the name of the Liberty ship *Jeremiah O'Brien*, as announced by the farm in 2024.
 
 ## 🌊 The real farm
 
